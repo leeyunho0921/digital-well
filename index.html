@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>디지털 웰빙 종합 관리 플랫폼</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f8fa;
+    margin: 0; padding: 20px;
+    display: flex; justify-content: center;
+  }
+  .container {
+    max-width: 700px;
+    width: 100%;
+    background: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  }
+  h1 {
+    text-align: center;
+    color: #2d4059;
+  }
+  label {
+    display: block;
+    margin: 15px 0 6px;
+    font-weight: 600;
+  }
+  input[type=number] {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1.8px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 20px;
+    width: 100%;
+    background-color: #3a86ff;
+    border: none;
+    padding: 14px;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #265ebc;
+  }
+  .result {
+    margin-top: 30px;
+  }
+  .bar-chart {
+    margin-top: 20px;
+  }
+  .bar {
+    background-color: #3a86ff;
+    height: 28px;
+    margin: 10px 0;
+    border-radius: 6px;
+    color: white;
+    padding-left: 12px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    transition: width 0.5s ease;
+  }
+  .bar-label {
+    flex-shrink: 0;
+    width: 110px;
+  }
+  .warning {
+    margin-top: 20px;
+    background: #ff4d6d;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .goal-section {
+    margin-top: 30px;
+    padding: 15px;
+    background: #e0e8f9;
+    border-radius: 10px;
+  }
+  .goal-section input[type=number] {
+    width: 100px;
+    display: inline-block;
+    margin-left: 10px;
+  }
+  .goal-section label {
+    font-weight: 600;
+  }
+  .goal-msg {
+    margin-top: 10px;
+    font-weight: 600;
+  }
+  @media (max-width: 600px) {
+    .bar-label {
+      width: 90px;
+      font-size: 14px;
+    }
+    .bar {
+      height: 24px;
+      font-size: 14px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📱 디지털 웰빙 종합 관리 플랫폼</h1>
+
+  <label for="totalTime">오늘 스마트폰/PC 총 사용 시간 (시간):</label>
+  <input type="number" id="totalTime" min="0" max="24" step="0.1" placeholder="예: 5.5" />
+
+  <label for="snsTime">SNS 사용 시간 (시간):</label>
+  <input type="number" id="snsTime" min="0" max="24" step="0.1" placeholder="예: 2" />
+
+  <label for="gameTime">게임 사용 시간 (시간):</label>
+  <input type="number" id="gameTime" min="0" max="24" step="0.1" placeholder="예: 1.5" />
+
+  <label for="internetTime">인터넷 사용 시간 (시간):</label>
+  <input type="number" id="internetTime" min="0" max="24" step="0.1" placeholder="예: 2" />
+
+  <button onclick="analyzeUsage()">분석하기</button>
+
+  <div class="result" id="result" style="display:none;">
+    <h2>📊 오늘 사용 시간 분석</h2>
+    <div class="bar-chart">
+      <div class="bar"><div class="bar-label">SNS</div><div id="barSNS" style="width:0%"></div></div>
+      <div class="bar"><div class="bar-label">게임</div><div id="barGame" style="width:0%"></div></div>
+      <div class="bar"><div class="bar-label">인터넷</div><div id="barInternet" style="width:0%"></div></div>
+    </div>
+    <div id="totalMsg" style="margin-top:12px; font-weight:bold;"></div>
+  </div>
+
+  <div class="goal-section">
+    <h3>🎯 목표 설정</h3>
+    <label>하루 최대 사용 시간 (시간): <input type="number" id="goalTime" min="0" max="24" step="0.1" placeholder="예: 4" /></label>
+    <button onclick="checkGoal()">목표 달성 여부 확인</button>
+    <div id="goalMsg" class="goal-msg"></div>
+  </div>
+</div>
+
+<script>
+  function analyzeUsage() {
+    const total = parseFloat(document.getElementById('totalTime').value) || 0;
+    const sns = parseFloat(document.getElementById('snsTime').value) || 0;
+    const game = parseFloat(document.getElementById('gameTime').value) || 0;
+    const internet = parseFloat(document.getElementById('internetTime').value) || 0;
+
+    // 기본 검증
+    if(total <= 0) {
+      alert('총 사용 시간을 0보다 크게 입력해 주세요.');
+      return;
+    }
+    if(sns < 0 || game < 0 || internet < 0) {
+      alert('시간 입력은 음수가 될 수 없습니다.');
+      return;
+    }
+    if(sns + game + internet > total) {
+      alert('SNS, 게임, 인터넷 사용 시간 합이 총 사용 시간을 초과할 수 없습니다.');
+      return;
+    }
+
+    // % 계산 (최대 100%)
+    const snsPercent = (sns / total) * 100;
+    const gamePercent = (game / total) * 100;
+    const internetPercent = (internet / total) * 100;
+
+    // 바 차트 조정
+    document.getElementById('barSNS').style.width = snsPercent + '%';
+    document.getElementById('barSNS').style.backgroundColor = '#3a86ff';
+    document.getElementById('barSNS').textContent = sns.toFixed(1) + 'h';
+
+    document.getElementById('barGame').style.width = gamePercent + '%';
+    document.getElementById('barGame').style.backgroundColor = '#fb5607';
+    document.getElementById('barGame').textContent = game.toFixed(1) + 'h';
+
+    document.getElementById('barInternet').style.width = internetPercent + '%';
+    document.getElementById('barInternet').style.backgroundColor = '#ffbe0b';
+    document.getElementById('barInternet').textContent = internet.toFixed(1) + 'h';
+
+    // 총 사용 시간 메시지
+    const totalMsg = document.getElementById('totalMsg');
+    if(total > 8) {
+      totalMsg.textContent = '⚠️ 사용 시간이 매우 많아요! 휴식이 필요합니다.';
+      totalMsg.style.color = '#d00000';
+    } else if(total > 5) {
+      totalMsg.textContent = '⚠️ 사용 시간이 꽤 많습니다. 적절히 조절해보세요.';
+      totalMsg.style.color = '#f77f00';
+    } else {
+      totalMsg.textContent = '👍 사용 시간이 적당해 보입니다. 잘 관리하고 계시네요!';
+      totalMsg.style.color = '#198754';
+    }
+
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('goalMsg').textContent = '';
+  }
+
+  function checkGoal() {
+    const total = parseFloat(document.getElementById('totalTime').value) || 0;
+    const goal = parseFloat(document.getElementById('goalTime').value) || 0;
+    const goalMsg = document.getElementById('goalMsg');
+
+    if(goal <= 0) {
+      alert('목표 사용 시간을 0보다 크게 입력해 주세요.');
+      return;
+    }
+    if(total === 0) {
+      alert('먼저 오늘 사용 시간을 입력하고 분석하세요.');
+      return;
+    }
+
+    if(total <= goal) {
+      goalMsg.textContent = '🎉 축하합니다! 오늘 목표를 달성했어요!';
+      goalMsg.style.color = '#198754';
+    } else {
+      goalMsg.textContent = '⚠️ 목표 초과입니다. 내일은 더 노력해봐요!';
+      goalMsg.style.color = '#d00000';
+    }
+  }
+</script>
+</body>
+</html>
